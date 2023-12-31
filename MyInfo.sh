@@ -88,17 +88,17 @@ host_info(){
 }
 
 readable_size(){
- size_byte=$1
+   size=$1
 
- units=("k" "M" "G" "T" "P" "E" "Z" "Y")
- unit_index=0
-
- while (( size_bytes >= 1024 )); do
-   size_bytes=$(( size_bytes / 1024 ))
-   unit_index=$(( unit_index + 1 ))
-  done
-
- echo "Size : $size_bytes${units[unit_index]}B"
+    if [ $size -ge 1000000000 ]; then
+        echo "$(printf "%.1f" $(echo "scale=2; $size / 1000000000" | bc))G"
+    elif [ $size -ge 1000000 ]; then
+        echo "$(printf "%.1f" $(echo "scale=2; $size / 1000000" | bc))M"
+    elif [ $size -ge 1000 ]; then
+        echo "$(printf "%.1f" $(echo "scale=2; $size / 1000" | bc))K"
+    else
+        echo "${size}B"
+    fi
 }
 
 path_info(){
@@ -110,15 +110,14 @@ path_info(){
     permissions=$(stat -c "%A" "$file_path")
     last_modified=$(date -r "$file_path" | awk 'NR==1 {print $2, $3, $6}')
     
-    file_type=""
-
     if [ -e "$file_path" ]; then
-        if [ -f "$file_path" ]; then 
-            file_type="File"
+	if [ -f "$file_path" ]; then
+	   type="File"
         elif [ -d "$file_path" ]; then
-            file_path="Folder"
-        else
-            file_type="Unknown"
+           type="Folder"
+        else 
+	   echo "Error: $file_path is neither a file or dir"
+           exit 1
         fi
     fi
 
@@ -128,10 +127,10 @@ path_info(){
 
     echo "full pathname : $file_path"
     echo Owner : User=$user, Group=$group
-    echo File or Folder : $file_type 
+    echo File or Folder : $type
     echo "Permissions : user=${permissions:1:3}, group=${permissions:4:3}, other=${permissions:7:3}"
     echo "Last modified : $last_modified"
-    readable_size $2
+    echo "Size : $(readable_size $size_bytes)"
 }
 
 # Navigate to method 
