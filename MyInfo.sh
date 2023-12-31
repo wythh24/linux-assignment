@@ -87,6 +87,20 @@ host_info(){
     fi
 }
 
+readable_size(){
+ size_byte=$1
+
+ units=("k" "M" "G" "T" "P" "E" "Z" "Y")
+ unit_index=0
+
+ while (( size_bytes >= 1024 )); do
+   size_bytes=$(( size_bytes / 1024 ))
+   unit_index=$(( unit_index + 1 ))
+  done
+
+ echo "Size : $size_bytes${units[unit_index]}B"
+}
+
 path_info(){
     
     file_path=$2    
@@ -94,10 +108,8 @@ path_info(){
     user=$(stat -c "%U" "$file_path")
     group=$(stat -c "%G" "$file_path")
     permissions=$(stat -c "%A" "$file_path")
-    last_modified=$(stat -c "%y" "$file_path")
+    last_modified=$(date -r "$file_path" | awk 'NR==1 {print $2, $3, $6}')
     
-    format_last_modified=$(date "@$last_modified")
-
     file_type=""
 
     if [ -e "$file_path" ]; then
@@ -110,11 +122,16 @@ path_info(){
         fi
     fi
 
-    echo full pathname : $file_path
+    #Output file size
+    size_bytes=$(stat -c %s "$file_path")
+
+
+    echo "full pathname : $file_path"
     echo Owner : User=$user, Group=$group
     echo File or Folder : $file_type 
     echo "Permissions : user=${permissions:1:3}, group=${permissions:4:3}, other=${permissions:7:3}"
     echo "Last modified : $last_modified"
+    readable_size $2
 }
 
 # Navigate to method 
