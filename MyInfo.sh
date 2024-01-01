@@ -136,23 +136,15 @@ path_info(){
 # Navigate to method 
 
 case "$1" in 
-    "u")
+    u | U | user | USER)
         user_info $1 $2
         exit 1
         ;;
-    "user")
-        user_info $1 $2
-        exit 1
-        ;;
-    "h")
+    h | H | host | HOST)
         host_info $1 $2
         exit 1
         ;;
-    "host")
-        host_info $1 $2
-        exit 1
-        ;;
-    "p")
+    p | P | path | PATH)
         path_info $1 $2
         exit 1
         ;;
