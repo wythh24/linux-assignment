@@ -55,7 +55,7 @@ num_host(){
     # Get the organization and country information using whois
     whois_result=$(whois $target_ip)
 
-    api_curl="https://ipinfo.io/$get_last/json"
+    api_curl="https://ipinfo.io/$target_ip/json"
 
     info=$(curl -s $api_curl)
 
