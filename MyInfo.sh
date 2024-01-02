@@ -55,26 +55,52 @@ num_host(){
     # Get the organization and country information using whois
     whois_result=$(whois $target_ip)
 
-    # Extract organization and country information from whois result
-    organisation=$(echo "$whois_result" | grep -i "organisation:" | awk '{print $2}')
-    country=$(echo "$whois_result" | grep -i "country:" | awk '{print $2}')
-        
-    result=$(is_reachable $2)
+    api_curl="https://ipinfo.io/$get_last/json"
 
-    resolved_value=$(getent hosts "$2" | awk '{print $2}')
+    info=$(curl -s $api_curl)
+
+    org=$(echo $info | jq -r '.org' | awk '{gsub(/AS[0-9]+/, "", $0); print $0}' | sed 's/, Inc.$//')
+    country=$(echo $info | jq -r '.country')
+
+    resolved_value=$(getent hosts $target_ip | awk '{print $2}')
+
     echo Ip address : $2
     echo   Hostname : $resolved_value
-    echo  Reachable :  "$result"
+    echo  Reachable : $(is_reachable $2) 
 
     echo Route/Gateway: $gateway $dev $interface
-    echo Organization : $organisation
+    echo Organization : $org
     echo Country : $country
 }
 
 string_host() {
+    target_host=$2
+    ip_address=$(getent ahostsv4 "$target_host" | awk '/STREAM/ {print $1}')
+    get_last=$(echo $ip_address | awk ' {print $1}')
 
-    hostname=$(host "$2" | awk '/has address/ {print $4}')
-    echo "hostname for ip address $2 : $hostname"
+    api_curl="https://ipinfo.io/$get_last/json"
+
+    info=$(curl -s $api_curl)
+
+    org=$(echo $info | jq -r '.org' | awk '{gsub(/AS[0-9]+/, "", $0); print $0}' | sed 's/, Inc.$//')
+    country=$(echo $info | jq -r '.country')
+
+    route_info=$(ip route get $get_last)
+
+    # Extract the gateway and route from the output
+    gateway=$(echo "$route_info" | awk '/via/ {print $3}')
+    interface=$(echo "$route_info" | awk '/dev/ {print $5}')
+    dev=$(echo "$route_info" | awk  '{print $4}')
+
+
+    echo Ip address: $get_last
+    echo Hostname: $target_host
+    echo Reachable: $(is_reachable $get_last)
+
+    echo Route/Gateway: $gateway $dev $interface
+    echo Organization: $org
+    echo Country: $country
+
 }
 
 # host info

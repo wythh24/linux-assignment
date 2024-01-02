@@ -1,5 +1,6 @@
+# !/bin/bash
 
-show_help(){
+function show_help(){
     echo "Usage: $0 [I | IP | H | HOST] <hostname | ip>"
     echo "Example: $0 h one.one.one.one"
     exit 1
