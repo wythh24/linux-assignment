@@ -1,5 +1,5 @@
-# Function to display help message
-function show_help {
+
+show_help(){
     echo "Usage: $0 [I | IP | H | HOST] <hostname | ip>"
     echo "Example: $0 h one.one.one.one"
     exit 1
@@ -70,5 +70,3 @@ case "$MODE" in
         get_info "$TARGET"
         ;;
 esac
-
-exit 0
